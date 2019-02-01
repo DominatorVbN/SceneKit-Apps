@@ -19,6 +19,8 @@ class GameViewController: UIViewController {
     //camera node is the perpective of game's display but it is also a node.
     var cameraNode:SCNNode!
     
+    var geometryNode:SCNNode?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUI()
@@ -28,6 +30,7 @@ class GameViewController: UIViewController {
         setScene()
         setUpCamera()
         spawnShape()
+        setButton()
     }
     func setView(){
         //setting our viewcontroller view as SceneView.
@@ -66,6 +69,8 @@ class GameViewController: UIViewController {
         scene.rootNode.addChildNode(cameraNode)
     }
     func spawnShape() {
+        geometryNode?.removeFromParentNode()
+
         // create a placeholder geometry variable
         var geometry:SCNGeometry
         
@@ -80,7 +85,7 @@ class GameViewController: UIViewController {
         case .Cylinder:
             geometry = SCNCylinder(radius: 1, height: 2)
         case .Pyramid:
-            geometry = SCNPyramid(width: 1, height: 2, length: 3)
+            geometry = SCNPyramid(width: 1, height: 2, length: 1)
         case .Sphere:
             geometry = SCNSphere(radius: 1)
         case .Torus:
@@ -90,10 +95,33 @@ class GameViewController: UIViewController {
         }
         
         //  creates an instance of SCNNode named geometryNode.
-        let geometryNode = SCNNode(geometry: geometry)
+        geometryNode = SCNNode(geometry: geometry)
         
         // add the node as a child of the scene’s root node
-        scene.rootNode.addChildNode(geometryNode)
+            scene.rootNode.addChildNode(geometryNode!)
+       
+        
+    }
+    func setButton(){
+        let backgroungView = UIView(frame: CGRect(x: self.sceneView.frame.midX - 100, y: self.sceneView.frame.maxY - 85, width: 200, height: 45))
+        backgroungView.backgroundColor = UIColor.clear
+        let blurEffect = UIBlurEffect(style: .dark)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = CGRect(x: 0, y: 0, width: 200, height: 45)
+        blurView.layer.cornerRadius = 10
+        blurView.layer.masksToBounds = true
+        let button = UIButton(frame: blurView.frame)
+        button.addTarget(self, action: #selector(self.buttonTapped), for: .touchUpInside)
+        button.setTitle("change shape", for: .normal)
+        backgroungView.addSubview(blurView)
+        backgroungView.addSubview(button)
+        backgroungView.bringSubviewToFront(button)
+        sceneView.addSubview(backgroungView)
+        sceneView.bringSubviewToFront(backgroungView)
+    }
+    @objc func buttonTapped(){
+        print("tapped")
+        spawnShape()
     }
 }
 //NOTE: Each element of your game (such as lights, cameras, geometry, or particle emitters) is called a node and is stored in this tree-like structure.
